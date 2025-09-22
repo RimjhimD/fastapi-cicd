@@ -1,4 +1,4 @@
-name: FastAPI CI/CD
+name: Python application
 
 on:
   push:
@@ -24,6 +24,7 @@ jobs:
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
+          pip install flake8 pytest uvicorn fastapi  # <-- add your packages here
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
 
       - name: Lint with flake8
@@ -34,18 +35,18 @@ jobs:
       - name: Test with pytest
         run: pytest
 
-      - name: Run FastAPI locally (CI check)
-        run: uvicorn src.main:api --host 127.0.0.1 --port 8000 --reload &
-        # runs in background so workflow continues
-
   deploy:
     runs-on: ubuntu-latest
     needs: build
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - uses: actions/checkout@v4
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
       - name: Deploy to Production
         run: |
-          echo "Deployment placeholder..."
-          # Replace this with your actual deployment commands
+          echo "Starting Deployment..."
+          # For local testing, you can run uvicorn like this:
+          # uvicorn src.main:app --host 0.0.0.0 --port 8000
+          # For real deployment, replace the echo with your server commands
