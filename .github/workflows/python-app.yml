@@ -15,25 +15,24 @@ jobs:
 
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Python 3.12
-        uses: actions/setup-python@v4
+      - name: Set up Python 3.10
+        uses: actions/setup-python@v3
         with:
-          python-version: '3.12'
-
+          python-version: '3.10'
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest uvicorn fastapi  # <-- add your packages here
+          pip install flake8 pytest httpx
           if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
-
       - name: Lint with flake8
         run: |
+          # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
+          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
-
       - name: Test with pytest
-        run: pytest
+        run: |
+          pytest
 
   deploy:
     runs-on: ubuntu-latest
@@ -47,6 +46,5 @@ jobs:
       - name: Deploy to Production
         run: |
           echo "Starting Deployment..."
-          # For local testing, you can run uvicorn like this:
-          # uvicorn src.main:app --host 0.0.0.0 --port 8000
-          # For real deployment, replace the echo with your server commands
+          # Replace this echo with actual deployment code - for example:
+          # ssh user@my_server "cd /path/to/project && git pull && systemctl restart my-service"
