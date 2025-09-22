@@ -1,4 +1,4 @@
-name: Python application
+name: Python FastAPI CI/CD
 
 on:
   push:
@@ -14,25 +14,40 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      # Step 1: Checkout the repository
       - uses: actions/checkout@v4
-      - name: Set up Python 3.10
+
+      # Step 2: Set up Python
+      - name: Set up Python 3.12
         uses: actions/setup-python@v3
         with:
-          python-version: '3.10'
+          python-version: '3.12'
+
+      # Step 3: Install dependencies
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
-          pip install flake8 pytest httpx
-          if [ -f requirements.txt ]; then pip install -r requirements.txt; fi
+          pip install -r requirements.txt
+          pip install flake8 pytest uvicorn fastapi
+
+      # Step 4: Lint with flake8
       - name: Lint with flake8
         run: |
           # stop the build if there are Python syntax errors or undefined names
           flake8 . --count --select=E9,F63,F7,F82 --show-source --statistics
-          # exit-zero treats all errors as warnings. The GitHub editor is 127 chars wide
+          # exit-zero treats all errors as warnings
           flake8 . --count --exit-zero --max-complexity=10 --max-line-length=127 --statistics
+
+      # Step 5: Run tests with pytest
       - name: Test with pytest
+        run: pytest
+
+      # Step 6: Run the app locally (optional, for testing only)
+      - name: Run app locally
         run: |
-          pytest
+          echo "Starting FastAPI app with uvicorn..."
+          uvicorn src.main:app --host 0.0.0.0 --port 8000 --reload & sleep 5
+          ps aux | grep uvicorn
 
   deploy:
     runs-on: ubuntu-latest
@@ -40,11 +55,10 @@ jobs:
     if: github.ref == 'refs/heads/main'
 
     steps:
-      - name: Checkout Code
-        uses: actions/checkout@v4
+      - uses: actions/checkout@v4
 
       - name: Deploy to Production
         run: |
           echo "Starting Deployment..."
-          # Replace this echo with actual deployment code - for example:
-          # ssh user@my_server "cd /path/to/project && git pull && systemctl restart my-service"
+          # Replace with actual deployment, for example:
+          # ssh user@server "cd /path/to/project && git pull && systemctl restart my-service"
