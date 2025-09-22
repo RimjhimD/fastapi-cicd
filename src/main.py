@@ -32,7 +32,7 @@ def add_ticket(ticket: Ticket):
 @api.put("/ticket/{ticket_id}")
 def update_ticket(ticket_id: int, updated_ticket: Ticket):
     for index, ticket in enumerate(tickets):
-        if ticket.id == ticket_id:  # <-- colon added here
+        if ticket.id == ticket_id:  
             tickets[index] = updated_ticket
             return updated_ticket
     return {"error": "Ticket Not Found"}
